@@ -18,13 +18,17 @@ contract Dononymous is BaseHook, ERC1155 {
     using CurrencyLibrary for Currency;
 
     // mapping organization => share of fee
-    mapping(address organization => uint256 share) organizationShare;
+    mapping(address organization => uint256 share) public organizationShare;
+    address relayer;
     int256 LIQUIDITY_DELTA = 10 ether;
 
     constructor(
         IPoolManager _poolManager,
-        string memory _uri
-    ) BaseHook(_poolManager) ERC1155(_uri) {}
+        string memory _uri,
+        address _relayer
+    ) BaseHook(_poolManager) ERC1155(_uri) {
+        relayer = _relayer;
+    }
 
     function getHooksCalls() public pure override returns (Hooks.Calls memory) {
         return
@@ -47,10 +51,10 @@ contract Dononymous is BaseHook, ERC1155 {
         int24 _tickLower,
         int24 _tickUpper
     ) public {
-        // add liquidity
-        organizationShare[org]++;
+        // add fund to the smart contract
+        _infuseFund(key);
 
-        // Setup the swapping parameters
+        // Setup the modifyPosition parameters
         IPoolManager.ModifyPositionParams
             memory modifyPositionParams = IPoolManager.ModifyPositionParams({
                 tickLower: _tickLower,
@@ -62,7 +66,7 @@ contract Dononymous is BaseHook, ERC1155 {
             poolManager.lock(
                 abi.encodeCall(
                     this._handleModifyPosition,
-                    (key, modifyPositionParams)
+                    (key, modifyPositionParams, abi.encode(true, org))
                 )
             ),
             (BalanceDelta)
@@ -93,9 +97,19 @@ contract Dononymous is BaseHook, ERC1155 {
         address,
         PoolKey calldata,
         IPoolManager.ModifyPositionParams calldata,
-        bytes calldata
+        bytes calldata hookData
     ) external override poolManagerOnly returns (bytes4) {
+        // (if providing liquidity)
         // verify identity
+
+        // hook data: isProvide, org address, proof
+        (bool isProvide, address org) = abi.decode(hookData, (bool, address));
+
+        if (isProvide) {
+            organizationShare[org]++;
+        } else {
+            // verify identity proof
+        }
 
         return BaseHook.beforeModifyPosition.selector;
     }
@@ -103,9 +117,23 @@ contract Dononymous is BaseHook, ERC1155 {
     // Helper
     function _handleModifyPosition(
         PoolKey calldata key,
-        IPoolManager.ModifyPositionParams memory params
+        IPoolManager.ModifyPositionParams memory params,
+        bytes calldata hookData
     ) public returns (BalanceDelta) {
-        BalanceDelta delta = poolManager.modifyPosition(key, params, bytes(""));
+        BalanceDelta delta = poolManager.modifyPosition(key, params, hookData);
         return delta;
+    }
+
+    function _infuseFund(PoolKey calldata key) public {
+        IERC20(Currency.unwrap(key.currency0)).transferFrom(
+            relayer,
+            address(this),
+            IERC20(Currency.unwrap(key.currency0)).balanceOf(relayer)
+        );
+        IERC20(Currency.unwrap(key.currency1)).transferFrom(
+            relayer,
+            address(this),
+            IERC20(Currency.unwrap(key.currency1)).balanceOf(relayer)
+        );
     }
 }
