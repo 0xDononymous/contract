@@ -35,10 +35,12 @@ contract DononymousTest is HookTest, Deployers, GasSnapshot {
             flags,
             0,
             type(Dononymous).creationCode,
-            abi.encode(address(manager))
+            abi.encode(
+                address(manager),
+                "testURL",
+                0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE
+            )
         );
-
-        console2.log(hookAddress);
 
         dono = new Dononymous{salt: salt}(
             IPoolManager(address(manager)),
@@ -46,8 +48,6 @@ contract DononymousTest is HookTest, Deployers, GasSnapshot {
             0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE
         );
 
-        console.logAddress(address(hookAddress));
-        console.logAddress(address(dono));
         require(
             address(dono) == hookAddress,
             "CounterTest: hook address mismatch"
@@ -93,8 +93,8 @@ contract DononymousTest is HookTest, Deployers, GasSnapshot {
         );
 
         // Perform a test swap //
-        int24 tickLower = -10;
-        int24 tickUpper = 10;
+        int24 tickLower = -60;
+        int24 tickUpper = 60;
         int256 liquidityDelta = 10 ether;
         address org = 0x567fd643E1693581bB4Cf31D6300Cd177e0C5Fc0;
         provideLiquidity(poolKey, tickLower, tickUpper, liquidityDelta, org);

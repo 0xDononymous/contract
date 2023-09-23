@@ -82,7 +82,7 @@ contract HookTest is Test {
         int256 liquidityDelta,
         address org
     ) internal {
-        bytes memory hookData = abi.encode(true, org);
+        bytes memory hookData = abi.encode(org);
         IPoolManager.ModifyPositionParams memory params = IPoolManager
             .ModifyPositionParams({
                 tickLower: tickLower,

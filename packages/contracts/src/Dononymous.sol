@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import "forge-std/console.sol";
+
 import {BaseHook} from "v4-periphery/BaseHook.sol";
 
 import {Hooks} from "@uniswap/v4-core/contracts/libraries/Hooks.sol";
@@ -96,19 +98,20 @@ contract Dononymous is BaseHook, ERC1155 {
     function beforeModifyPosition(
         address,
         PoolKey calldata,
-        IPoolManager.ModifyPositionParams calldata,
+        IPoolManager.ModifyPositionParams calldata params,
         bytes calldata hookData
     ) external override poolManagerOnly returns (bytes4) {
-        // (if providing liquidity)
-        // verify identity
-
-        // hook data: isProvide, org address, proof
-        (bool isProvide, address org) = abi.decode(hookData, (bool, address));
-
-        if (isProvide) {
-            organizationShare[org]++;
+        if (params.liquidityDelta > 0) {
+            console.logString("Provide Liquidity");
+            if (hookData.length > 0) {
+                console.logString("hookData");
+                address org = abi.decode(hookData, (address));
+                console.logAddress(org);
+                organizationShare[org]++;
+            }
         } else {
-            // verify identity proof
+            console.logString("Remove Liquidity");
+            // verify identity
         }
 
         return BaseHook.beforeModifyPosition.selector;
