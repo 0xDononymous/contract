@@ -1,3 +1,4 @@
+import { ethers } from 'hardhat'
 import { Group } from '@semaphore-protocol/group'
 import { Identity } from '@semaphore-protocol/identity'
 import { generateProof } from '@semaphore-protocol/proof'
@@ -5,43 +6,61 @@ import { expect } from 'chai'
 import { formatBytes32String } from 'ethers/lib/utils'
 import { run } from 'hardhat'
 // @ts-ignore: typechain folder will be generated after contracts compilation
-import { Feedback } from '../build/typechain'
-import { config } from '../package.json'
+import { DononymousSemaphore } from '../../build/typechain'
+import { config } from '../../package.json'
 
-describe('Feedback', () => {
-  let feedbackContract: Feedback
-  let semaphoreContract: string
+describe('Anonymous ', () => {
+  let semaphoreContract: DononymousSemaphore
+  let semaphoreCore: string
 
-  const groupId = '42'
+  const groupId = '1'
   const group = new Group(groupId)
   const users: Identity[] = []
 
   before(async () => {
+    console.log('Deploying Semaphore Core...')
     const { semaphore } = await run('deploy:semaphore', {
       logs: false,
     })
 
-    feedbackContract = await run('deploy', {
+    semaphoreCore = semaphore
+    console.log('Semaphore Core deployed at:', semaphoreCore.address)
+    console.log('Deploying Semaphore Contract...')
+    semaphoreContract = await run('deploy', {
       logs: false,
-      group: groupId,
       semaphore: semaphore.address,
     })
-    semaphoreContract = semaphore
+    console.log('Semaphore Contract deployed at:', semaphoreContract.address)
 
-    users.push(new Identity())
-    users.push(new Identity())
+    users.push(new Identity('user_secret_1'))
+    users.push(new Identity('user_secret_2'))
+  })
+
+  describe('# createGroup', () => {
+    it('Should allow owner to create a group', async () => {
+      const org1 = ethers.Wallet.createRandom()
+      const memberMaxAmount = 20
+      const transaction = semaphoreContract.initOrganization(
+        org1.address,
+        groupId,
+        memberMaxAmount
+      )
+
+      await expect(transaction).to.emit(semaphoreCore, 'GroupCreated')
+    })
   })
 
   describe('# joinGroup', () => {
     it('Should allow users to join the group', async () => {
       for await (const [i, user] of users.entries()) {
-        const transaction = feedbackContract.joinGroup(user.commitment)
+        const transaction = semaphoreContract.joinService(
+          groupId,
+          user.commitment
+        )
 
         group.addMember(user.commitment)
 
-        await expect(transaction)
-          .to.emit(semaphoreContract, 'MemberAdded')
-          .withArgs(groupId, i, user.commitment, group.root)
+        await expect(transaction).to.emit(semaphoreCore, 'MemberAdded')
       }
     })
   })
@@ -64,22 +83,16 @@ describe('Feedback', () => {
         }
       )
 
-      const transaction = feedbackContract.sendFeedback(
+      const transaction = semaphoreContract.verifyWithdraw(
+        groupId,
         feedback,
         fullProof.merkleTreeRoot,
         fullProof.nullifierHash,
+        fullProof.externalNullifier,
         fullProof.proof
       )
 
-      await expect(transaction)
-        .to.emit(semaphoreContract, 'ProofVerified')
-        .withArgs(
-          groupId,
-          fullProof.merkleTreeRoot,
-          fullProof.nullifierHash,
-          groupId,
-          fullProof.signal
-        )
+      await expect(transaction).to.emit(semaphoreCore, 'ProofVerified')
     })
   })
 })
