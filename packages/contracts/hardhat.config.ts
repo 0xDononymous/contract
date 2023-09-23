@@ -1,4 +1,5 @@
 import '@nomicfoundation/hardhat-chai-matchers'
+import '@nomicfoundation/hardhat-network-helpers'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-etherscan'
 import '@semaphore-protocol/hardhat'
@@ -10,6 +11,7 @@ import { NetworksUserConfig } from 'hardhat/types'
 import { resolve } from 'path'
 import 'solidity-coverage'
 import { config } from './package.json'
+import './tasks/deploy'
 
 dotenvConfig({ path: resolve(__dirname, '../../.env') })
 
