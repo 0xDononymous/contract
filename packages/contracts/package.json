@@ -8,17 +8,18 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "hardhat run script/download-snark-artifacts.ts && hardhat test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@semaphore-protocol/contracts": "^3.11.1",
-    "@zk-kit/incremental-merkle-tree.sol": "^1.7.0",
+    "@semaphore-protocol/contracts": "3.11.0",
     "dotenv": "^16.3.1"
   },
   "devDependencies": {
+    "@types/download": "^8.0.1",
+    "download": "^8.0.0",
     "@ethersproject/abi": "^5.4.7",
     "@ethersproject/providers": "^5.4.7",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
@@ -51,16 +52,28 @@
     "solidity": {
       "compilers": [
         {
-          "version": "0.8.4"
+          "version": "0.8.4",
+          "settings": {
+            "optimizer": {
+              "enabled": true,
+              "runs": 1000
+            }
+          }
         },
         {
-          "version": "0.8.19"
+          "version": "0.8.19",
+          "settings": {
+            "optimizer": {
+              "enabled": true,
+              "runs": 1000
+            }
+          }
         }
       ]
     },
     "paths": {
       "contracts": "./contracts",
-      "tests": "./test",
+      "tests": "./test/hardhat",
       "cache": "./cache",
       "build": {
         "snark-artifacts": "./build/snark-artifacts",
