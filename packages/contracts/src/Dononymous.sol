@@ -28,7 +28,6 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     using Pool for *;
     using FixedPointMathLib for uint256;
 
-    // mapping organization => share of fee
     address[] organizationList;
     uint256 totalShare;
     mapping(address organization => uint256 share) public organizationShare;
@@ -67,6 +66,7 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
 
     // Main functionality
     function provideCrumble(PoolKey calldata key, address org, int24 _tickLower, int24 _tickUpper) public {
+        require(msg.sender == relayer, "Only relayer action");
         // add fund to the smart contract
         _infuseFund(key);
 
@@ -83,6 +83,15 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
         );
     }
 
+    function provideDonut(PoolKey calldata key, address org, bool isCurrency0, uint256 amount) public {
+        require(msg.sender == relayer, "Only relayer action");
+        // add fund to the smart contract
+        _infuseFund(key);
+
+        address currenctToTransfer = isCurrency0 ? key.currency0 : key.currency1;
+        IERC20(Currency.unwrap(currenctToTransfer)).transferFrom(relayer, org, amount);
+    }
+
     // Hook
     function beforeModifyPosition(
         address,
@@ -92,17 +101,13 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     ) external override poolManagerOnly returns (bytes4) {
         if (params.liquidityDelta > 0) {
             // For provide liquidity
-            console.logString("Provide Liquidity");
             if (hookData.length > 0) {
-                console.logString("hookData");
                 address org = abi.decode(hookData, (address));
-                console.logAddress(org);
                 totalShare++;
                 organizationShare[org]++;
             }
         } else {
             // For remove liquidity
-            console.logString("Remove Liquidity");
             // Todo: verify identity
             bool pass = true;
 
@@ -167,7 +172,7 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
         return delta;
     }
 
-    function _infuseFund(PoolKey calldata key) public {
+    function infuseFund(PoolKey calldata key) public {
         IERC20(Currency.unwrap(key.currency0)).transferFrom(
             relayer, address(this), IERC20(Currency.unwrap(key.currency0)).balanceOf(relayer)
         );
