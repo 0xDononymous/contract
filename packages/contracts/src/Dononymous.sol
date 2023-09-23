@@ -68,7 +68,7 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     function provideCrumble(PoolKey calldata key, address org, int24 _tickLower, int24 _tickUpper) public {
         require(msg.sender == relayer, "Only relayer action");
         // add fund to the smart contract
-        _infuseFund(key);
+        infuseFund(key);
 
         // Setup the modifyPosition parameters
         IPoolManager.ModifyPositionParams memory modifyPositionParams = IPoolManager.ModifyPositionParams({
@@ -86,10 +86,10 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     function provideDonut(PoolKey calldata key, address org, bool isCurrency0, uint256 amount) public {
         require(msg.sender == relayer, "Only relayer action");
         // add fund to the smart contract
-        _infuseFund(key);
+        infuseFund(key);
 
-        address currenctToTransfer = isCurrency0 ? key.currency0 : key.currency1;
-        IERC20(Currency.unwrap(currenctToTransfer)).transferFrom(relayer, org, amount);
+        address currencyToTransfer = isCurrency0 ? Currency.unwrap(key.currency0) : Currency.unwrap(key.currency1);
+        IERC20(currencyToTransfer).transferFrom(relayer, org, amount);
     }
 
     // Hook
@@ -113,15 +113,23 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
 
             require(pass, "Identity verify error");
 
+            // Pre Claim Balance
+            uint256 preClaimBalance0 = IERC20(Currency.unwrap(key.currency0)).balanceOf(address(this));
+            uint256 preClaimBalance1 = IERC20(Currency.unwrap(key.currency1)).balanceOf(address(this));
+
             IInternalPoolManager(address(poolManager)).collectHookFees(address(this), key.currency0, 0);
             IInternalPoolManager(address(poolManager)).collectHookFees(address(this), key.currency1, 0);
 
+            // Post Claim Balance
+            uint256 postClaimBalance0 = IERC20(Currency.unwrap(key.currency0)).balanceOf(address(this));
+            uint256 postClaimBalance1 = IERC20(Currency.unwrap(key.currency1)).balanceOf(address(this));
+
             // distribute fee over to the organizations
             for (uint256 i = 0; i < organizationList.length; i++) {
-                uint256 share0 = IERC20(Currency.unwrap(key.currency0)).balanceOf(address(this)).mulDivDown(
+                uint256 share0 = (postClaimBalance0 - preClaimBalance0).mulDivDown(
                     organizationShare[organizationList[i]], totalShare
                 );
-                uint256 share1 = IERC20(Currency.unwrap(key.currency1)).balanceOf(address(this)).mulDivDown(
+                uint256 share1 = (postClaimBalance1 - preClaimBalance1).mulDivDown(
                     organizationShare[organizationList[i]], totalShare
                 );
 
