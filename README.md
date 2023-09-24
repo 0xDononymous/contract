@@ -127,5 +127,7 @@ forge script script/Dononymous.s.sol \
 ### Base Goerli
 
 ### Arbitrum Goerli
+semaphore [0x4591665bEBB923e36fa5fe79364e84141A549869](https://goerli.arbiscan.io/address/0x4591665bEBB923e36fa5fe79364e84141A549869#code)
+dononymous [0x200fD7187cAFF730e27393343799D8dc79fAc9Bc](https://goerli.arbiscan.io/address/0x200fD7187cAFF730e27393343799D8dc79fAc9Bc#code)
 
 ### Scroll Sepolia
