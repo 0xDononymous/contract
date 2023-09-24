@@ -101,6 +101,15 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
         IERC20(currencyToTransfer).transferFrom(relayer, org, amount);
     }
 
+    function claimFund(PoolKey calldata key) public {
+        uint256 amount0 = organizationBalance0[msg.sender];
+        organizationBalance0[msg.sender] = 0;
+        uint256 amount1 = organizationBalance1[msg.sender];
+        organizationBalance1[msg.sender] = 0;
+        IERC20(Currency.unwrap(key.currency0)).transfer(msg.sender, amount0);
+        IERC20(Currency.unwrap(key.currency1)).transfer(msg.sender, amount1);
+    }
+
     // Hook
     function beforeModifyPosition(
         address,
