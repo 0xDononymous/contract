@@ -94,7 +94,7 @@ pwd
 pwd
 # dononymous/packages/semaphore
 # make sure you are under the semaphore folder
-# remember to pass in your ETHERSCAN_API_KEY
+# remember to pass in your ETHEREUM_PRIVATE_KEY
 yarn hardhat run scripts/deploy.ts
 
 Deploying Semaphore Core...
