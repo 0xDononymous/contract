@@ -108,7 +108,10 @@ pwd
 # dononymous/packages/contracts
 # make sure you are under the contracts folder
 # copy the semaphore address and paste it to packages/contracts/script/Dononymous.s.sol#L18
-# TODO
+forge script script/Dononymous.s.sol \
+    --rpc-url <rpc url> \
+    --private-key <private key> \
+    --broadcast
 ```
 
 ## Future enhancement
