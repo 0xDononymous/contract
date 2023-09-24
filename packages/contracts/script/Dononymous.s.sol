@@ -15,6 +15,7 @@ import {HookMiner} from "../test/utils/HookMiner.sol";
 /// @dev This script only works on an anvil RPC because v4 exceeds bytecode limits
 contract CounterScript is Script {
     address constant CREATE2_DEPLOYER = address(0x4e59b44847b379578588920cA78FbF26c0B4956C);
+    address constant semaphore = address(0);
 
     function setUp() public {}
 
@@ -38,7 +39,7 @@ contract CounterScript is Script {
                 poolManagerAddress,
                 "ipfs://QmWwRQH4yoBSK8zKoyt1kSZNb2iQuU87t3TCVekBXxn8vT/",
                 0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE,
-                address(0)
+                semaphore
             )
         );
 
@@ -48,7 +49,7 @@ contract CounterScript is Script {
             IPoolManager(poolManagerAddress),
             "ipfs://QmWwRQH4yoBSK8zKoyt1kSZNb2iQuU87t3TCVekBXxn8vT/",
             0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE,
-            address(0)
+            semaphore
         );
         require(address(dono) == hookAddress, "DononymousScript: hook address mismatch");
 

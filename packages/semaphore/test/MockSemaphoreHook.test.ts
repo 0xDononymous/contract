@@ -7,7 +7,7 @@ import { formatBytes32String } from 'ethers/lib/utils'
 import { run } from 'hardhat'
 // @ts-ignore: typechain folder will be generated after contracts compilation
 import { DononymousSemaphore } from '../../build/typechain'
-import { config } from '../../package.json'
+import { config } from '../package.json'
 
 describe('Anonymous ', () => {
   let semaphoreContract: DononymousSemaphore
