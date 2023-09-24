@@ -15,7 +15,8 @@ docs/
 .env
 
 # dependencies
-node_modules/
+packages/contracts/node_modules/
+
 artifacts/
 .pnp
 .pnp.js

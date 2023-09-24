@@ -6,6 +6,7 @@ import "forge-std/console.sol";
 import {IInternalPoolManager} from "../interfaces/IInternalPoolManager.sol";
 
 import {BaseHook} from "v4-periphery/BaseHook.sol";
+import {DononymousSemaphore} from "../contracts/DononymousSemaphore.sol";
 
 import {Hooks} from "@uniswap/v4-core/contracts/libraries/Hooks.sol";
 import {Pool} from "@uniswap/v4-core/contracts/libraries/Pool.sol";
@@ -22,7 +23,7 @@ import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import {ERC1155} from "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
+contract Dononymous is BaseHook, ERC1155, IHookFeeManager, DononymousSemaphore {
     using PoolIdLibrary for PoolKey;
     using CurrencyLibrary for Currency;
     using Pool for *;
@@ -39,10 +40,14 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     int256 DONATION_BASE_0;
     int256 DONATION_BASE_1;
 
-    uint256 public constant CRUMBLE = 0;
+    uint256 public constant CRUMBS = 0;
     uint256 public constant DONUT = 1;
 
-    constructor(IPoolManager _poolManager, string memory _uri, address _relayer) BaseHook(_poolManager) ERC1155(_uri) {
+    constructor(IPoolManager _poolManager, string memory _uri, address _relayer, address _semaphoreAddress)
+        BaseHook(_poolManager)
+        ERC1155(_uri)
+        DononymousSemaphore(_semaphoreAddress)
+    {
         relayer = _relayer;
     }
 
@@ -68,7 +73,14 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     }
 
     // Main functionality
-    function provideCrumble(PoolKey calldata key, address org, int24 _tickLower, int24 _tickUpper) public {
+    function provideCrumbs(
+        PoolKey calldata key,
+        address org,
+        int24 _tickLower,
+        int24 _tickUpper,
+        uint256 _groupId,
+        uint256 _identityCommitment
+    ) public {
         require(msg.sender == relayer, "Only relayer action");
         // add fund to the smart contract
         infuseFund(key);
@@ -84,11 +96,19 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
             poolManager.lock(abi.encodeCall(this._handleModifyPosition, (key, modifyPositionParams, abi.encode(org)))),
             (BalanceDelta)
         );
+
+        joinService(_groupId, _identityCommitment);
     }
 
-    function provideDonut(PoolKey calldata key, address org, bool isCurrency0, uint256 amount, address NFTreceiver)
-        public
-    {
+    function provideDonut(
+        PoolKey calldata key,
+        address org,
+        bool isCurrency0,
+        uint256 amount,
+        address NFTreceiver,
+        uint256 _groupId,
+        uint256 _identityCommitment
+    ) public {
         require(msg.sender == relayer, "Only relayer action");
         // add fund to the smart contract
         infuseFund(key);
@@ -99,6 +119,8 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
 
         address currencyToTransfer = isCurrency0 ? Currency.unwrap(key.currency0) : Currency.unwrap(key.currency1);
         IERC20(currencyToTransfer).transferFrom(relayer, org, amount);
+
+        joinService(_groupId, _identityCommitment);
     }
 
     function claimFund(PoolKey calldata key) public {
@@ -117,36 +139,45 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
         IPoolManager.ModifyPositionParams calldata params,
         bytes calldata hookData
     ) external override poolManagerOnly returns (bytes4) {
+        address token0 = Currency.unwrap(key.currency0);
+        address token1 = Currency.unwrap(key.currency1);
+        (
+            address _org,
+            address _NFTreceiver,
+            uint256 _groupId,
+            uint256 _feedback,
+            uint256 _merkleTreeRoot,
+            uint256 _nullifierHash,
+            uint256 _externalNullifier,
+            uint256[8] memory _proof
+        ) = abi.decode(hookData, (address, address, uint256, uint256, uint256, uint256, uint256, uint256[8]));
+        uint256 hookDataLength = hookData.length;
         if (params.liquidityDelta > 0) {
             // For provide liquidity
-            if (hookData.length > 0) {
-                (address org, address NFTreceiver) = abi.decode(hookData, (address, address));
-                if (NFTreceiver != address(0)) {
-                    _mint(NFTreceiver, CRUMBLE, 1, "");
+            if (hookDataLength > 0) {
+                if (_NFTreceiver != address(0)) {
+                    _mint(_NFTreceiver, CRUMBS, 1, "");
                 }
                 totalShare++;
-                organizationShare[org]++;
+                organizationShare[_org]++;
             }
         } else {
             // For remove liquidity
-            // Todo: verify identity
-            bool pass = true;
-
-            require(pass, "Identity verify error");
+            verifyWithdraw(_groupId, _feedback, _merkleTreeRoot, _nullifierHash, _externalNullifier, _proof);
 
             // Pre Claim Balance
-            uint256 preClaimBalance0 = IERC20(Currency.unwrap(key.currency0)).balanceOf(address(this));
-            uint256 preClaimBalance1 = IERC20(Currency.unwrap(key.currency1)).balanceOf(address(this));
+            uint256 preClaimBalance0 = IERC20(token0).balanceOf(address(this));
+            uint256 preClaimBalance1 = IERC20(token1).balanceOf(address(this));
 
             IInternalPoolManager(address(poolManager)).collectHookFees(address(this), key.currency0, 0);
             IInternalPoolManager(address(poolManager)).collectHookFees(address(this), key.currency1, 0);
 
             // Post Claim Balance
-            uint256 postClaimBalance0 = IERC20(Currency.unwrap(key.currency0)).balanceOf(address(this));
-            uint256 postClaimBalance1 = IERC20(Currency.unwrap(key.currency1)).balanceOf(address(this));
+            uint256 postClaimBalance0 = IERC20(token0).balanceOf(address(this));
+            uint256 postClaimBalance1 = IERC20(token1).balanceOf(address(this));
 
             // distribute fee over to the organizations
-            for (uint256 i = 0; i < organizationList.length; i++) {
+            for (uint256 i = 0; i < organizationList.length;) {
                 uint256 share0 = (postClaimBalance0 - preClaimBalance0).mulDivDown(
                     organizationShare[organizationList[i]], totalShare
                 );
@@ -156,9 +187,13 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
 
                 organizationBalance0[organizationList[i]] += share0;
                 organizationBalance1[organizationList[i]] += share1;
+
+                unchecked {
+                    i++;
+                }
             }
 
-            if (hookData.length > 0) {
+            if (hookDataLength > 0) {
                 address org = 0x567fd643E1693581bB4Cf31D6300Cd177e0C5Fc0;
                 totalShare--;
                 organizationShare[org]--;
