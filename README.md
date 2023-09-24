@@ -65,7 +65,8 @@ yarn test
 pwd
 # dononymous/packages/contracts
 # make sure you are under the contracts folder
-# forge test
+# there is currently a issue of incompatibility between semaphore and foundry 
+forge test
 ```
 
 ### Deploy
