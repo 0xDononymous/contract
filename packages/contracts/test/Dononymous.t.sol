@@ -38,10 +38,12 @@ contract DononymousTest is HookTest, Deployers, GasSnapshot {
             abi.encode(address(manager), "testURL", 0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE)
         );
 
+        // TODO: Here should pass in Semaphore address
         dono = new Dononymous{salt: salt}(
             IPoolManager(address(manager)),
             "testURL",
-            0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE
+            0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE,
+            address(0)
         );
 
         require(address(dono) == hookAddress, "CounterTest: hook address mismatch");
