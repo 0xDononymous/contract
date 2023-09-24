@@ -15,9 +15,7 @@ docs/
 .env
 
 # dependencies
-packages/contracts/node_modules/*
-!packages/contracts/node_modules/@semaphore-protocol/
-!packages/contracts/node_modules/@zk-kit/
+packages/contracts/node_modules/
 
 artifacts/
 .pnp
