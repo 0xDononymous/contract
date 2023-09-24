@@ -76,7 +76,7 @@ pwd
 pwd
 # dononymous/packages/issuer
 # make sure you are under the issuer folder
-# TODO
+yarn dev
 ```
 
 * Verifier (Locally)
@@ -85,7 +85,7 @@ pwd
 pwd
 # dononymous/packages/verifier
 # make sure you are under the verifier folder
-# TODO
+yarn dev
 ```
 
 * Semaphore
