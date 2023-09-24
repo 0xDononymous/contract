@@ -7,7 +7,7 @@ One can use this verified credential to access the **Dononymous main app** witho
 
 ## Getting Started
 
-- Run the application by entering `yarn dev` and navigate to the URL provided
+- Run the application by entering `yarn dev` and navigate to the URL provided (if you're running from the root folder, use `yarn --cwd packages/issuer dev` instead.)
 
 
 ## Resources

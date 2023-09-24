@@ -18,7 +18,7 @@ We're verifying wallets with valid KYC credentials using zk proofs, thus, none/m
 <!-- 4. Follow [Steph's quick setup guide](https://oceans404.notion.site/oceans404/How-to-get-a-KYCAgeCredential-Verifiable-Credential-f3d34e7c98ec4147b6b2fae79066c4f6) to get a demo VC from the [demo issuer](https://issuer-demo.polygonid.me/). -->
 4. Follow [our issuer app's quick guide](https://github.com/0xDononymous/dononymous/tree/main/app/issuer) to get a verified credential.
 5. Create a new file called `.env.local` in the root of the project, and copy the contents of `.env.example` into it.
-6. Run `npm run dev` and open [http://localhost:3000](http://localhost:3000) with your browser to start the application.
+6. Run `npm run dev` (if you're running from the root folder, use `npm run --prefix ./packages/verifier dev` instead.) and open [http://localhost:3000](http://localhost:3000) with your browser to start the application.
 7. Install [ngrok](ngrok.com) on your machine so that you can expose your localhost API routes.
 8. Using the ngrok CLI, expose your localhost API routes by running `ngrok http 3000` (for localhost:3000).
 9. Update the `NEXT_PUBLIC_DEVELOPMENT_URL` in the `.env.local` file with your ngrok "Forwarding" URL.
