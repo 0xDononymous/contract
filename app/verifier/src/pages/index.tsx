@@ -39,11 +39,6 @@ export default function Home() {
         Dononymous KYC Verification
       </h1>
 
-      {/* <p className="leading-7 [&:not(:first-child)]:mt-6 text-center max-w-2xl mb-4">
-        A demo application using Polygon ID to prove your age via zero-knowledge
-        proofs.
-      </p> */}
-
       {/* Render the verification status */}
       <p className="text-center max-w-2xl mb-4 text-2xl">
         Your current status:{" "}
@@ -92,7 +87,7 @@ export default function Home() {
         <Link
           className="underline font-semibold"
           target="_blank"
-          href="https://github.com/0xDononymous/dononymous/tree/main/packages/app"
+          href="https://github.com/0xDononymous/dononymous/tree/main/app/issuer"
         >
           Our Issuer
         </Link>
@@ -166,7 +161,7 @@ export default function Home() {
       )}
 
       <a
-        href="https://github.com/0xDononymous/dononymous/tree/main/packages/app"
+        href="https://github.com/0xDononymous/dononymous/tree/main/app/verifier"
         target="_blank"
         className="text-md text-muted-foreground mt-8 underline semibold"
       >
