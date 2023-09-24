@@ -16,6 +16,8 @@ docs/
 
 # dependencies
 packages/contracts/node_modules/
+packages/issuer/node_modules/
+packages/verifier/node_modules/
 
 artifacts/
 .pnp
