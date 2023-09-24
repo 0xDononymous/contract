@@ -22,7 +22,7 @@ import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import {ERC1155} from "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
+contract Dononymous is BaseHook, ERC1155, IHookFeeManager, DononymousSemaphore {
     using PoolIdLibrary for PoolKey;
     using CurrencyLibrary for Currency;
     using Pool for *;
@@ -39,7 +39,7 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     int256 DONATION_BASE_0;
     int256 DONATION_BASE_1;
 
-    uint256 public constant CRUMBLE = 0;
+    uint256 public constant CRUMBS = 0;
     uint256 public constant DONUT = 1;
 
     constructor(IPoolManager _poolManager, string memory _uri, address _relayer) BaseHook(_poolManager) ERC1155(_uri) {
@@ -68,7 +68,7 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     }
 
     // Main functionality
-    function provideCrumble(PoolKey calldata key, address org, int24 _tickLower, int24 _tickUpper) public {
+    function provideCrumbs(PoolKey calldata key, address org, int24 _tickLower, int24 _tickUpper) public {
         require(msg.sender == relayer, "Only relayer action");
         // add fund to the smart contract
         infuseFund(key);
@@ -122,7 +122,7 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
             if (hookData.length > 0) {
                 (address org, address NFTreceiver) = abi.decode(hookData, (address, address));
                 if (NFTreceiver != address(0)) {
-                    _mint(NFTreceiver, CRUMBLE, 1, "");
+                    _mint(NFTreceiver, CRUMBS, 1, "");
                 }
                 totalShare++;
                 organizationShare[org]++;
