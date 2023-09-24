@@ -3,7 +3,7 @@
 Do the world some kind with Dononymous.<br/>
 Dononymous allows you to donate anonymously, and ensures your donation always aligns with your interest. 
 
-Dononymous includes four main part:
+## Dononymous includes four main part:
 1. Verified Identity Source: <br/>
    We utilized Lens protocol profile as the identity source. Verified through PolygonId, we ensure the validity of fund source.
 2. Onchain Privacy Identity <br/>
@@ -16,6 +16,9 @@ Dononymous includes four main part:
 ## Tech stack
 
 <img width="1289" alt="image" src="https://github.com/0xDononymous/dononymous/assets/48847495/1ba0b199-7500-4994-a8b8-49f94940b0b2">
+
+## Repo Guide
+Ths saperate part of App and Contract is under the `package` and the set up guide could be find from the folder saperately.
 
 ## Future enhancement
 1. Integration with Axiom: <br/>
