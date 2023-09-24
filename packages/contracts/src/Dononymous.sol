@@ -22,12 +22,14 @@ import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 
 import {ERC1155} from "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract Dononymous is BaseHook, ERC1155, IHookFeeManager, DononymousSemaphore {
     using PoolIdLibrary for PoolKey;
     using CurrencyLibrary for Currency;
     using Pool for *;
     using FixedPointMathLib for uint256;
+    using Strings for uint256;
 
     address[] organizationList;
     uint256 totalShare;
@@ -42,12 +44,14 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager, DononymousSemaphore {
 
     uint256 public constant CRUMBS = 0;
     uint256 public constant DONUT = 1;
+    string public baseURI;
 
     constructor(IPoolManager _poolManager, string memory _uri, address _relayer, address _semaphoreAddress)
         BaseHook(_poolManager)
         ERC1155(_uri)
         DononymousSemaphore(_semaphoreAddress)
     {
+        baseURI = _uri;
         relayer = _relayer;
     }
 
@@ -259,5 +263,13 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager, DononymousSemaphore {
     function addOrganizations(address org) public {
         require(msg.sender == relayer, "Only relayer action");
         organizationList.push(org);
+    }
+    /**
+     * @dev Retrieve token URI to get the metadata of a token
+     * @param _tokenId TokenId which caller wants to get the metadata of
+     */
+
+    function uri(uint256 _tokenId) public view override returns (string memory) {
+        return string(abi.encodePacked(baseURI, _tokenId.toString(), ".json"));
     }
 }

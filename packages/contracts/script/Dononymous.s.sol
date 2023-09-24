@@ -34,15 +34,21 @@ contract CounterScript is Script {
             flags,
             1000,
             type(Dononymous).creationCode,
-            abi.encode(poolManagerAddress, "testURL", 0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE)
+            abi.encode(
+                poolManagerAddress,
+                "ipfs://QmWwRQH4yoBSK8zKoyt1kSZNb2iQuU87t3TCVekBXxn8vT/",
+                0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE,
+                address(0)
+            )
         );
 
         // Deploy the hook using CREATE2
         vm.broadcast();
         Dononymous dono = new Dononymous{salt: salt}(
             IPoolManager(poolManagerAddress),
-            "testURL",
-            0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE
+            "ipfs://QmWwRQH4yoBSK8zKoyt1kSZNb2iQuU87t3TCVekBXxn8vT/",
+            0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE,
+            address(0)
         );
         require(address(dono) == hookAddress, "DononymousScript: hook address mismatch");
 
