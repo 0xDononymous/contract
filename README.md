@@ -18,6 +18,8 @@ Dononymous allows you to donate anonymously, and ensures your donation always al
 
 ![Dononymous Image](https://github.com/0xDononymous/dononymous/assets/48847495/1ba0b199-7500-4994-a8b8-49f94940b0b2)
 
+[Our figma board](https://www.figma.com/file/kx2dF6nh1GdXSMbzXCewdE/ZKoupon?type=design&node-id=101%3A2&mode=design&t=bTVxkG3VKebXW0Xf-1)
+
 ## Repo Guide
 
 Ths saperate part of App and Contract is under the `package` and the set up guide could be find from the folder saperately.
@@ -63,7 +65,7 @@ yarn test
 pwd
 # dononymous/packages/contracts
 # make sure you are under the contracts folder
-# TODO
+# forge test
 ```
 
 ### Deploy
