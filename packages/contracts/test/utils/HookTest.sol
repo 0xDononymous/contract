@@ -58,37 +58,28 @@ contract HookTest is Test {
         token1.approve(address(swapRouter), amount);
     }
 
-    function swap(
-        PoolKey memory key,
-        int256 amountSpecified,
-        bool zeroForOne
-    ) internal {
+    function swap(PoolKey memory key, int256 amountSpecified, bool zeroForOne) internal {
         IPoolManager.SwapParams memory params = IPoolManager.SwapParams({
             zeroForOne: zeroForOne,
             amountSpecified: amountSpecified,
             sqrtPriceLimitX96: zeroForOne ? MIN_PRICE_LIMIT : MAX_PRICE_LIMIT // unlimited impact
         });
 
-        PoolSwapTest.TestSettings memory testSettings = PoolSwapTest
-            .TestSettings({withdrawTokens: true, settleUsingTransfer: true});
+        PoolSwapTest.TestSettings memory testSettings =
+            PoolSwapTest.TestSettings({withdrawTokens: true, settleUsingTransfer: true});
 
         swapRouter.swap(key, params, testSettings);
     }
 
-    function provideLiquidity(
-        PoolKey memory key,
-        int24 tickLower,
-        int24 tickUpper,
-        int256 liquidityDelta,
-        address org
-    ) internal {
+    function provideLiquidity(PoolKey memory key, int24 tickLower, int24 tickUpper, int256 liquidityDelta, address org)
+        internal
+    {
         bytes memory hookData = abi.encode(org);
-        IPoolManager.ModifyPositionParams memory params = IPoolManager
-            .ModifyPositionParams({
-                tickLower: tickLower,
-                tickUpper: tickUpper,
-                liquidityDelta: liquidityDelta
-            });
+        IPoolManager.ModifyPositionParams memory params = IPoolManager.ModifyPositionParams({
+            tickLower: tickLower,
+            tickUpper: tickUpper,
+            liquidityDelta: liquidityDelta
+        });
         modifyPositionRouter.modifyPosition(key, params, hookData);
     }
 }
