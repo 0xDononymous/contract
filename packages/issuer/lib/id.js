@@ -11,8 +11,6 @@ function btoa(str) {
 }
 
 const PID_API_URL = 'https://api-testnet.dock.io'
-const username = 'user-issuer'
-const password = 'password-issuer'
 
 const paths = {
   // identities: 'identities',
@@ -33,7 +31,7 @@ const axiosHeaders = {
   // headers: {
   //   'DOCK-API-TOKEN': 'eyJzY29wZXMiOlsidGVzdCIsImFsbCJdLCJzdWIiOiIxMDIxMSIsInNlbGVjdGVkVGVhbUlkIjoiMTQyOTIiLCJjcmVhdG9ySWQiOiIxMDIxMSIsImlhdCI6MTY5NTQ4ODM0OCwiZXhwIjo0Nzc0Nzg0MzQ4fQ.5nAknsr5g0Ic1daNnKB5PKeO6jHx-hM2zK5qQHNWuImFEk0qS_llEPFolrJb65zI118_bKiZMLZUrNy5ktSuCw',
   // },
-  'DOCK-API-TOKEN': 'eyJzY29wZXMiOlsidGVzdCIsImFsbCJdLCJzdWIiOiIxMDIxMSIsInNlbGVjdGVkVGVhbUlkIjoiMTQyOTIiLCJjcmVhdG9ySWQiOiIxMDIxMSIsImlhdCI6MTY5NTQ4ODM0OCwiZXhwIjo0Nzc0Nzg0MzQ4fQ.5nAknsr5g0Ic1daNnKB5PKeO6jHx-hM2zK5qQHNWuImFEk0qS_llEPFolrJb65zI118_bKiZMLZUrNy5ktSuCw',
+  'DOCK-API-TOKEN': 'eyJzY29wZXMiOlsidGVzdCIsImFsbCJdLCJzdWIiOiIxMDIxMSIsInNlbGVjdGVkVGVhbUlkIjoiMTQyOTIiLCJjcmVhdG9ySWQiOiIxMDIxMSIsImlhdCI6MTY5NTQ4ODM0OCwiZXhwIjo0Nzc0Nzg0MzQ4fQ.5nAknsr5g0Ic1daNnKB5PKeO6jHx-hM2zK5qQHNWuImFEk0qS_llEPFolrJb65zI118_bKiZMLZUrNy5ktSuCw',  //TODO(ky): hard-coded, to refactor.
 };
 
 

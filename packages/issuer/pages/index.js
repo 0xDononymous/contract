@@ -107,7 +107,7 @@ export default function Home() {
     } catch (err) {
       console.log("Error signing in: ", err);
 
-      const dummy_id = '123';
+      const dummy_id = 234;
       const dummy_name = 'lens-anonymous-user';
       const dummy_stats = {
         totalFollowing: 40,
@@ -142,7 +142,6 @@ export default function Home() {
   }
 
   async function generateClaim(_userDID) {
-    //TODO update the function call.
     try {
       setLoading(true);
       setStatus("Creating the VC...");
