@@ -39,6 +39,9 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
     int256 DONATION_BASE_0;
     int256 DONATION_BASE_1;
 
+    uint256 public constant CRUMBLE = 0;
+    uint256 public constant DONUT = 1;
+
     constructor(IPoolManager _poolManager, string memory _uri, address _relayer) BaseHook(_poolManager) ERC1155(_uri) {
         relayer = _relayer;
     }
@@ -83,10 +86,16 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
         );
     }
 
-    function provideDonut(PoolKey calldata key, address org, bool isCurrency0, uint256 amount) public {
+    function provideDonut(PoolKey calldata key, address org, bool isCurrency0, uint256 amount, address NFTreceiver)
+        public
+    {
         require(msg.sender == relayer, "Only relayer action");
         // add fund to the smart contract
         infuseFund(key);
+
+        if (NFTreceiver != address(0)) {
+            _mint(NFTreceiver, DONUT, 1, "");
+        }
 
         address currencyToTransfer = isCurrency0 ? Currency.unwrap(key.currency0) : Currency.unwrap(key.currency1);
         IERC20(currencyToTransfer).transferFrom(relayer, org, amount);
@@ -102,7 +111,10 @@ contract Dononymous is BaseHook, ERC1155, IHookFeeManager {
         if (params.liquidityDelta > 0) {
             // For provide liquidity
             if (hookData.length > 0) {
-                address org = abi.decode(hookData, (address));
+                (address org, address NFTreceiver) = abi.decode(hookData, (address, address));
+                if (NFTreceiver != address(0)) {
+                    _mint(NFTreceiver, CRUMBLE, 1, "");
+                }
                 totalShare++;
                 organizationShare[org]++;
             }
