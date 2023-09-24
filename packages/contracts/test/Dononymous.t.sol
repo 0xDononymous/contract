@@ -35,11 +35,7 @@ contract DononymousTest is HookTest, Deployers, GasSnapshot {
             flags,
             0,
             type(Dononymous).creationCode,
-            abi.encode(
-                address(manager),
-                "testURL",
-                0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE
-            )
+            abi.encode(address(manager), "testURL", 0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE)
         );
 
         dono = new Dononymous{salt: salt}(
@@ -48,49 +44,25 @@ contract DononymousTest is HookTest, Deployers, GasSnapshot {
             0x3d8975383228DAFAfDb4ba090fA8B1077119f3AE
         );
 
-        require(
-            address(dono) == hookAddress,
-            "CounterTest: hook address mismatch"
-        );
+        require(address(dono) == hookAddress, "CounterTest: hook address mismatch");
 
         // Create the pool
-        poolKey = PoolKey(
-            Currency.wrap(address(token0)),
-            Currency.wrap(address(token1)),
-            3000,
-            60,
-            IHooks(dono)
-        );
+        poolKey = PoolKey(Currency.wrap(address(token0)), Currency.wrap(address(token1)), 3000, 60, IHooks(dono));
         poolId = poolKey.toId();
         manager.initialize(poolKey, SQRT_RATIO_1_1, ZERO_BYTES);
 
         // Provide liquidity to the pool
+        modifyPositionRouter.modifyPosition(poolKey, IPoolManager.ModifyPositionParams(-60, 60, 10 ether), bytes(""));
+        modifyPositionRouter.modifyPosition(poolKey, IPoolManager.ModifyPositionParams(-120, 120, 10 ether), bytes(""));
         modifyPositionRouter.modifyPosition(
             poolKey,
-            IPoolManager.ModifyPositionParams(-60, 60, 10 ether),
-            bytes("")
-        );
-        modifyPositionRouter.modifyPosition(
-            poolKey,
-            IPoolManager.ModifyPositionParams(-120, 120, 10 ether),
-            bytes("")
-        );
-        modifyPositionRouter.modifyPosition(
-            poolKey,
-            IPoolManager.ModifyPositionParams(
-                TickMath.minUsableTick(60),
-                TickMath.maxUsableTick(60),
-                10 ether
-            ),
+            IPoolManager.ModifyPositionParams(TickMath.minUsableTick(60), TickMath.maxUsableTick(60), 10 ether),
             bytes("")
         );
     }
 
     function testModifyPosition() public {
-        assertEq(
-            dono.organizationShare(0x567fd643E1693581bB4Cf31D6300Cd177e0C5Fc0),
-            0
-        );
+        assertEq(dono.organizationShare(0x567fd643E1693581bB4Cf31D6300Cd177e0C5Fc0), 0);
 
         // Perform a test swap //
         int24 tickLower = -60;
@@ -100,9 +72,6 @@ contract DononymousTest is HookTest, Deployers, GasSnapshot {
         provideLiquidity(poolKey, tickLower, tickUpper, liquidityDelta, org);
         // ------------------- //
 
-        assertEq(
-            dono.organizationShare(0x567fd643E1693581bB4Cf31D6300Cd177e0C5Fc0),
-            1
-        );
+        assertEq(dono.organizationShare(0x567fd643E1693581bB4Cf31D6300Cd177e0C5Fc0), 1);
     }
 }
